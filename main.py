@@ -25,10 +25,41 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
     
-    # import DataFrames
+    # Import DataFrames
     train_df = pd.read_parquet("x_train.parquet")
     validation = pd.read_parquet("x_valid.parquet")
     test = pd.read_parquet("x_test.parquet")
+
+    # Split dataset
+
+    x_train = train_df.iloc[:,:-1].values
+    y_train = train_df.iloc[:,-1].values
+
+    x_valid = validation.iloc[:,:-1].values
+    y_valid = validation.iloc[:,-1].values
+
+    x_test = test.iloc[:,:-1].values
+    y_test = test.iloc[:,-1].values
+
+    # Tranform to tensor
+
+    x_train = torch.from_numpy(x_train).type(torch.float)
+    y_train = torch.from_numpy(y_train).type(torch.long)
+
+    x_valid = torch.from_numpy(x_valid).type(torch.float)
+    y_valid = torch.from_numpy(y_valid).type(torch.long)
+
+    x_test = torch.from_numpy(x_test).type(torch.float)
+    y_test = torch.from_numpy(y_test).type(torch.long)
+
+    x_train = x_train.to(device)
+    y_train = y_train.to(device)
+
+    x_valid = x_valid.to(device)
+    y_valid = y_valid.to(device)
+
+    x_test = x_test.to(device)
+    y_test = y_test.to(device)
     
     # Doing Resampling in DataFrame Train
     
@@ -45,15 +76,17 @@ def main():
     
     train=pd.concat([df_0,df_1_upsample,df_2_upsample,df_3_upsample,df_4_upsample])
 
-    #Create Metrics
+    # Create Metrics and auxiliar items
     f1 = MulticlassF1Score(num_classes=5,average='weighted').to(device)
     acc = MulticlassAccuracy(num_classes=5).to(device)
     confuse_matrix = MulticlassConfusionMatrix(num_classes=5).to(device)
+    softmax = nn.Softmax(dim=1)
+    loss_fn = nn.CrossEntropyLoss()
 
     if args.mode == "train":
 
         # Creating model
-        model = CreateModel.to(device)
+        model = CreateModel().to(device)
         
         #Creating Loss Function and Optimizer
         loss = nn.CrossEntropyLoss()

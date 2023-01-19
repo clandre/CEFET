@@ -1,0 +1,23 @@
+## Construção da imagem
+```
+docker build -t networkfullyconected .
+```
+
+---
+**NOTE**
+
+Antes de buildar é necessário adicionar os arquivos x_train.parquet, x_valid.parquet e x_test.parquet caso eles não estejam presentes na raiz do diretório.
+
+---
+
+## Execução do modelo com o conjunto de teste
+
+### Com gpu
+```
+docker run -it --gpus all  networkfullyconected
+```
+
+### Sem gpu
+```
+docker run -it networkfullyconected
+```
